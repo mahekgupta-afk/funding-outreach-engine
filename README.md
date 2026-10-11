@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Timed Funding Outreach Engine
 
-## Getting Started
+Finds startups that announced a pre-seed/seed round in the last 24 hours, scores them against a
+configurable accelerator thesis, and drops a personalised draft email into a review queue —
+without ever sending anything automatically.
 
-First, run the development server:
+Built for the MESA Cohort C4 "AI and its Applications" final exam (Timed Funding Outreach Engine).
+
+> Full architecture, data flow, and prompts are documented inline in the code and in
+> `supabase/schema.sql`. This README covers setup, env vars, and operating the system.
+
+## Status
+
+Work in progress — this section and the rest of the README will be filled in as each build step
+lands (schema, ingestion, scoring, drafting, dashboard, scheduler, deploy).
+
+## Stack
+
+- **Framework:** Next.js (App Router, TypeScript) — API routes + dashboard in one project
+- **Hosting:** Vercel Hobby (free tier)
+- **Database:** Supabase Postgres (free tier)
+- **AI:** Gemini Flash via `@google/generative-ai` — **no Claude/Anthropic API is used anywhere**
+- **Scheduler:** GitHub Actions cron (every 2 hours) calling `POST /api/run`
+- **Sources:** RSS feeds (TechCrunch, Inc42, Entrackr, YourStory), Google News RSS, Hacker News Algolia API
+
+## Environment variables
+
+Copy `.env.example` to `.env.local` and fill in the values:
+
+| Variable | Where to get it |
+|---|---|
+| `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/apikey) |
+| `GEMINI_MODEL` | Defaults to `gemini-flash-latest` (always the current Flash model) |
+| `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Supabase project → Settings → API (service role key is server-only, never exposed to the client) |
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase project → Settings → API |
+| `CRON_SECRET` | Any random string you generate; set the same value in GitHub Actions secrets |
+| `LOOKBACK_HOURS` | How far back to look for fresh announcements (default 24) |
+| `MAX_ARTICLES_PER_RUN` | Cap to stay within Gemini free-tier rate limits (default 40) |
+
+Set the same variables in the Vercel project settings for production.
+
+## Running locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+To trigger a pipeline run locally:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+curl -X POST http://localhost:3000/api/run -H "Authorization: Bearer $CRON_SECRET"
+```
 
-## Learn More
+## Free-tier limits to be aware of
 
-To learn more about Next.js, take a look at the following resources:
+- Supabase free projects pause after about a week of inactivity — the 2-hour scheduled job keeps it awake.
+- GitHub Actions scheduled workflows can be delayed and are disabled after 60 days of repo inactivity (a daily Vercel cron is included as a fallback).
+- Gemini free tier has rate limits — the pipeline batches extraction calls and backs off on 429s.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Editing the accelerator thesis
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Rohit edits the thesis (target sectors, geographies, stage, round size, fit threshold, sender
+details) directly in the Supabase `thesis` table (via the Table Editor or the `/thesis` page in
+the dashboard). No code change or redeploy is needed — every pipeline run reads the active thesis
+fresh from the database.
