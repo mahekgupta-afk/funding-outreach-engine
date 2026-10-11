@@ -3,11 +3,14 @@ import { runPipeline } from "@/lib/pipeline";
 
 export const maxDuration = 300; // seconds — Vercel Hobby's ceiling for a function
 
-export async function POST(req: NextRequest) {
+function isAuthorized(req: NextRequest): boolean {
   const authHeader = req.headers.get("authorization");
   const expected = `Bearer ${process.env.CRON_SECRET}`;
+  return Boolean(process.env.CRON_SECRET) && authHeader === expected;
+}
 
-  if (!process.env.CRON_SECRET || authHeader !== expected) {
+async function handle(req: NextRequest) {
+  if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -20,4 +23,15 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// GitHub Actions (every 2h) calls this with POST.
+export async function POST(req: NextRequest) {
+  return handle(req);
+}
+
+// Vercel's own cron (vercel.json, once/day fallback on the Hobby plan) always
+// calls via GET, and automatically sends `Authorization: Bearer $CRON_SECRET`.
+export async function GET(req: NextRequest) {
+  return handle(req);
 }
