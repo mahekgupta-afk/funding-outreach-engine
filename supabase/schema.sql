@@ -126,6 +126,62 @@ alter table rejected_log enable row level security;
 alter table runs enable row level security;
 
 -- ---------------------------------------------------------------------------
+-- insert_startup_and_draft: atomically creates a startup + its draft, or does
+-- nothing if dedupe_key already exists (two overlapping runs, or two articles
+-- about the same startup, can never produce two drafts). Runs as one
+-- transaction since a plpgsql function body is one.
+-- ---------------------------------------------------------------------------
+create or replace function insert_startup_and_draft(
+  p_dedupe_key text,
+  p_name text,
+  p_website text,
+  p_domain text,
+  p_stage text,
+  p_amount_usd bigint,
+  p_currency_raw text,
+  p_investors text[],
+  p_founders text[],
+  p_sector text,
+  p_geography text,
+  p_announced_at timestamptz,
+  p_source_url text,
+  p_fit_score int,
+  p_fit_reason text,
+  p_to_name text,
+  p_to_email text,
+  p_subject text,
+  p_body text,
+  p_research_quality text
+) returns uuid
+language plpgsql
+as $$
+declare
+  v_startup_id uuid;
+begin
+  insert into startups (
+    dedupe_key, name, website, domain, stage, amount_usd, currency_raw,
+    investors, founders, sector, geography, announced_at, source_url,
+    fit_score, fit_reason, status
+  ) values (
+    p_dedupe_key, p_name, p_website, p_domain, p_stage, p_amount_usd, p_currency_raw,
+    p_investors, p_founders, p_sector, p_geography, p_announced_at, p_source_url,
+    p_fit_score, p_fit_reason, 'queued'
+  )
+  on conflict (dedupe_key) do nothing
+  returning id into v_startup_id;
+
+  if v_startup_id is null then
+    return null;
+  end if;
+
+  insert into drafts (startup_id, to_name, to_email, subject, body, status, research_quality)
+  values (v_startup_id, p_to_name, p_to_email, p_subject, p_body, 'pending_review', p_research_quality);
+
+  return v_startup_id;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
 -- Seed thesis row (placeholder — edit freely in the Table Editor later)
 -- ---------------------------------------------------------------------------
 insert into thesis (accelerator_name, description, target_sectors, excluded_sectors,
