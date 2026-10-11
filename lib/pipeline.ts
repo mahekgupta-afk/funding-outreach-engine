@@ -24,9 +24,17 @@ function envInt(name: string, fallback: number): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
+// Leaves a safety margin under Vercel's maxDuration (300s on Hobby): if a run
+// is running long (large backlog, slow Gemini responses), it stops picking up
+// new work and exits cleanly rather than risking a hard kill mid-write. Any
+// article not yet marked "seen" at that point is naturally retried next run.
+const TIME_BUDGET_MS = 260_000;
+
 export async function runPipeline(): Promise<RunSummary> {
   const supabase = getSupabaseAdmin();
   const errors: string[] = [];
+  const startedAt = Date.now();
+  const outOfTime = () => Date.now() - startedAt > TIME_BUDGET_MS;
 
   const { data: runRow, error: runInsertError } = await supabase
     .from("runs")
@@ -70,8 +78,10 @@ export async function runPipeline(): Promise<RunSummary> {
     const lookbackHours = envInt("LOOKBACK_HOURS", 24);
     const fresh = dedupeArticles(filterFresh(articles, lookbackHours));
 
-    // 4. Drop anything already in seen_articles; insert the rest.
-    const newArticles = await filterAndRecordSeenArticles(supabase, fresh);
+    // 4. Drop anything already in seen_articles (read-only check — nothing is
+    // marked seen yet). Only articles that reach a definitive outcome below
+    // get recorded, so a capped-out or time-budgeted article is retried next run.
+    const newArticles = await findNewArticles(supabase, fresh);
     summary.articles_new = newArticles.length;
 
     const maxArticles = envInt("MAX_ARTICLES_PER_RUN", 40);
@@ -82,6 +92,8 @@ export async function runPipeline(): Promise<RunSummary> {
     errors.push(...extractErrors);
     summary.funding_found = extracted.filter((e) => e.extraction.is_funding_announcement).length;
 
+    // Articles whose batch failed outright never reach `extracted` at all —
+    // they're simply never marked seen below, so they're retried next run.
     const { kept, dropped } = filterSeedStage(extracted);
     summary.seed_stage = kept.length;
 
@@ -96,15 +108,26 @@ export async function runPipeline(): Promise<RunSummary> {
         source_url: d.item.article.url,
       });
       summary.rejected++;
+      await markSeen(supabase, d.item.article);
     }
 
     // 8. Dedupe by domain/name before spending research + Gemini quota on a repeat.
     const existingKeys = await loadExistingDedupeKeys(supabase);
     const seenThisRun = new Set<string>();
+    let deferredForTime = 0;
 
     for (const item of kept) {
+      if (outOfTime()) {
+        deferredForTime++;
+        continue; // left unmarked in seen_articles — retried next run
+      }
+
       const key = dedupeKeyFor(item.extraction.startup_name, item.extraction.website);
-      if (existingKeys.has(key) || seenThisRun.has(key)) continue;
+      if (existingKeys.has(key) || seenThisRun.has(key)) {
+        // Already tracked via another article — this URL need never be looked at again.
+        await markSeen(supabase, item.article);
+        continue;
+      }
       seenThisRun.add(key);
 
       try {
@@ -127,6 +150,7 @@ export async function runPipeline(): Promise<RunSummary> {
             source_url: item.article.url,
           });
           summary.rejected++;
+          await markSeen(supabase, item.article);
           continue;
         }
 
@@ -162,15 +186,27 @@ export async function runPipeline(): Promise<RunSummary> {
 
         if (rpcError) {
           errors.push(`insert_startup_and_draft(${key}): ${rpcError.message}`);
-          continue;
+          continue; // left unmarked — retried next run rather than lost
         }
         if (startupId) summary.drafts_created++;
+        await markSeen(supabase, item.article);
       } catch (err) {
         errors.push(
           `processing ${item.extraction.startup_name}: ${err instanceof Error ? err.message : String(err)}`
         );
+        // left unmarked in seen_articles — retried next run rather than lost
       }
     }
+
+    if (deferredForTime > 0) {
+      errors.push(
+        `Stopped early at the time budget with ${deferredForTime} extracted item(s) still unprocessed — they'll be retried next run.`
+      );
+    }
+
+    // Articles outside MAX_ARTICLES_PER_RUN were never in `toProcess` at all,
+    // so they too were never marked seen — naturally retried next run (as
+    // long as they're still within LOOKBACK_HOURS then).
   } catch (err) {
     errors.push(err instanceof Error ? err.message : String(err));
   }
@@ -192,7 +228,7 @@ export async function runPipeline(): Promise<RunSummary> {
   return summary;
 }
 
-async function filterAndRecordSeenArticles(
+async function findNewArticles(
   supabase: ReturnType<typeof getSupabaseAdmin>,
   articles: RawArticle[]
 ): Promise<RawArticle[]> {
@@ -202,20 +238,19 @@ async function filterAndRecordSeenArticles(
   const { data: existing } = await supabase.from("seen_articles").select("url").in("url", urls);
   const existingUrls = new Set((existing ?? []).map((r) => r.url as string));
 
-  const newArticles = articles.filter((a) => !existingUrls.has(a.url));
-  if (newArticles.length === 0) return [];
+  return articles.filter((a) => !existingUrls.has(a.url));
+}
 
+async function markSeen(supabase: ReturnType<typeof getSupabaseAdmin>, article: RawArticle) {
   await supabase.from("seen_articles").upsert(
-    newArticles.map((a) => ({
-      url: a.url,
-      source: a.source,
-      title: a.title,
-      published_at: a.published_at,
-    })),
+    {
+      url: article.url,
+      source: article.source,
+      title: article.title,
+      published_at: article.published_at,
+    },
     { onConflict: "url", ignoreDuplicates: true }
   );
-
-  return newArticles;
 }
 
 async function loadExistingDedupeKeys(
