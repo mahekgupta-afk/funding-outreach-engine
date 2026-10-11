@@ -19,7 +19,7 @@ lands (schema, ingestion, scoring, drafting, dashboard, scheduler, deploy).
 - **Framework:** Next.js (App Router, TypeScript) — API routes + dashboard in one project
 - **Hosting:** Vercel Hobby (free tier)
 - **Database:** Supabase Postgres (free tier)
-- **AI:** Gemini Flash via `@google/generative-ai` — **no Claude/Anthropic API is used anywhere**
+- **AI:** Gemini Flash via a direct REST call to the Google AI Studio API — **no Claude/Anthropic API is used anywhere**
 - **Scheduler:** GitHub Actions cron (every 2 hours) calling `POST /api/run`
 - **Sources:** RSS feeds (TechCrunch, Inc42, Entrackr, YourStory), Google News RSS, Hacker News Algolia API
 
