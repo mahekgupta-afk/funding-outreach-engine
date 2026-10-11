@@ -46,6 +46,17 @@ export interface RejectedRow {
   detail: string | null;
   source_url: string | null;
   created_at: string;
+  website: string | null;
+  domain: string | null;
+  amount_usd: number | null;
+  currency_raw: string | null;
+  investors: string[];
+  founders: string[];
+  sector: string | null;
+  geography: string | null;
+  announced_at: string | null;
+  promoted_at: string | null;
+  promoted_startup_id: string | null;
 }
 
 export interface RunRow {

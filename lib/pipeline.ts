@@ -1,6 +1,6 @@
 import { getSupabaseAdmin } from "./supabase";
 import { ingestAll, filterFresh, dedupeArticles, type RawArticle } from "./ingest";
-import { extractAll, filterSeedStage } from "./extract";
+import { extractAll, filterSeedStage, type Extraction } from "./extract";
 import { researchWebsite } from "./research";
 import { scoreFit } from "./fit-score";
 import { draftEmail } from "./draft";
@@ -99,13 +99,11 @@ export async function runPipeline(): Promise<RunSummary> {
 
     for (const d of dropped) {
       await logRejected(supabase, {
-        dedupe_key: null,
-        name: d.item.extraction.startup_name,
-        stage: d.item.extraction.stage,
+        extraction: d.item.extraction,
+        source_url: d.item.article.url,
         fit_score: null,
         reject_reason: d.reason,
         detail: d.item.extraction.one_line_description,
-        source_url: d.item.article.url,
       });
       summary.rejected++;
       await markSeen(supabase, d.item.article);
@@ -141,13 +139,12 @@ export async function runPipeline(): Promise<RunSummary> {
         // 11. Fit gate.
         if (fit.score < thesis.fit_threshold) {
           await logRejected(supabase, {
+            extraction: item.extraction,
+            source_url: item.article.url,
             dedupe_key: key,
-            name: item.extraction.startup_name,
-            stage: item.extraction.stage,
             fit_score: fit.score,
             reject_reason: "below_threshold",
             detail: fit.reason,
-            source_url: item.article.url,
           });
           summary.rejected++;
           await markSeen(supabase, item.article);
@@ -266,14 +263,31 @@ async function loadExistingDedupeKeys(
 async function logRejected(
   supabase: ReturnType<typeof getSupabaseAdmin>,
   row: {
-    dedupe_key: string | null;
-    name: string;
-    stage: string;
+    extraction: Extraction;
+    source_url: string;
     fit_score: number | null;
     reject_reason: string;
     detail: string;
-    source_url: string;
+    dedupe_key?: string | null;
   }
 ) {
-  await supabase.from("rejected_log").insert(row);
+  const { extraction, source_url, fit_score, reject_reason, detail, dedupe_key } = row;
+  await supabase.from("rejected_log").insert({
+    dedupe_key: dedupe_key ?? null,
+    name: extraction.startup_name,
+    stage: extraction.stage,
+    fit_score,
+    reject_reason,
+    detail,
+    source_url,
+    website: extraction.website,
+    domain: normalizeDomain(extraction.website),
+    amount_usd: extraction.amount_usd,
+    currency_raw: extraction.amount_raw,
+    investors: extraction.investors,
+    founders: extraction.founders,
+    sector: extraction.sector,
+    geography: extraction.geography,
+    announced_at: extraction.announced_at,
+  });
 }

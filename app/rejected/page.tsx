@@ -1,4 +1,5 @@
 import { getRejected } from "@/lib/dashboard-data";
+import PromoteButton from "@/components/PromoteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +17,9 @@ export default async function RejectedPage() {
       <div className="pageHeader">
         <h1>Rejected log</h1>
         <p>
-          Audit trail only — these never appear in the drafts queue. Kept so a wrong rejection is
-          visible and checkable, not silently invisible.
+          Audit trail only — these never appear in the drafts queue by default. Kept so a wrong
+          rejection is visible and checkable, not silently invisible. Below-threshold rejections
+          can be promoted into a real draft if you disagree with the score.
         </p>
       </div>
 
@@ -35,6 +37,7 @@ export default async function RejectedPage() {
                 <th>Detail</th>
                 <th>Source</th>
                 <th>When</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -48,7 +51,15 @@ export default async function RejectedPage() {
                       {REASON_LABELS[r.reject_reason] ?? r.reject_reason}
                     </span>
                   </td>
-                  <td style={{ maxWidth: 320 }}>{r.detail || "—"}</td>
+                  <td style={{ maxWidth: 320 }}>
+                    {r.detail || "—"}
+                    {(r.investors.length > 0 || r.amount_usd) && (
+                      <div className="helperText" style={{ marginTop: 4 }}>
+                        {r.amount_usd ? `$${r.amount_usd.toLocaleString()}` : null}
+                        {r.investors.length > 0 ? ` · ${r.investors.join(", ")}` : ""}
+                      </div>
+                    )}
+                  </td>
                   <td>
                     {r.source_url ? (
                       <a href={r.source_url} target="_blank" rel="noreferrer">
@@ -60,6 +71,15 @@ export default async function RejectedPage() {
                   </td>
                   <td style={{ whiteSpace: "nowrap" }}>
                     {new Date(r.created_at).toLocaleString()}
+                  </td>
+                  <td>
+                    {r.promoted_at ? (
+                      <span className="badge badgeSuccess">promoted</span>
+                    ) : r.reject_reason === "below_threshold" ? (
+                      <PromoteButton id={r.id} />
+                    ) : (
+                      "—"
+                    )}
                   </td>
                 </tr>
               ))}

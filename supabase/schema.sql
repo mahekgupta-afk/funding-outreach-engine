@@ -92,7 +92,21 @@ create table if not exists rejected_log (
   reject_reason text not null,             -- e.g. 'below_threshold', 'not_seed', 'not_funding'
   detail text,
   source_url text,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- Extracted fields, stored so a below_threshold rejection can be promoted
+  -- into a real draft later without re-fetching/re-extracting the article.
+  website text,
+  domain text,
+  amount_usd bigint,
+  currency_raw text,
+  investors text[] default '{}',
+  founders text[] default '{}',
+  sector text,
+  geography text,
+  announced_at timestamptz,
+  -- Set once a human overrides the rejection via the dashboard's "Promote" action.
+  promoted_at timestamptz,
+  promoted_startup_id uuid references startups(id)
 );
 
 -- ---------------------------------------------------------------------------
