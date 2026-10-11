@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import WebSocket from "ws";
 
 /**
  * Server-only Supabase client using the service role key. This bypasses RLS,
@@ -14,5 +15,9 @@ export function getSupabaseAdmin() {
 
   return createClient(url, key, {
     auth: { persistSession: false },
+    // Node (< 22) has no native WebSocket; supabase-js's realtime client
+    // throws at construction time without one, even though this app never
+    // uses realtime subscriptions.
+    realtime: { transport: WebSocket as unknown as typeof globalThis.WebSocket },
   });
 }
