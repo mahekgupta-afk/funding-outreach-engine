@@ -188,7 +188,7 @@ insert into thesis (accelerator_name, description, target_sectors, excluded_sect
   target_geographies, min_round_usd, max_round_usd, fit_threshold,
   sender_name, sender_title, program_pitch)
 select
-  'Example Accelerator',
+  'Accelerator',
   'We back early-stage B2B software, fintech and climate startups building in India and Southeast Asia, with technical founders and evidence of early traction.',
   '{saas,fintech,climate,ai,healthtech}', '{gambling,adult,crypto-trading}',
   '{India,Southeast Asia}', 250000, 3000000, 65,
