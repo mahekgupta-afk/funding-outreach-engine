@@ -8,7 +8,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 const LINKS = [
   { href: "/news", label: "News" },
   { href: "/email", label: "Email" },
-  { href: "/thesis", label: "Thesis" },
+  { href: "/thesis", label: "Criteria" },
   { href: "/rejected", label: "System Rejected" },
   { href: "/runs", label: "Runs" },
 ];

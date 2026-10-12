@@ -10,7 +10,7 @@ export default async function ThesisPage() {
   return (
     <div className="container stack">
       <div className="pageHeader">
-        <h1>Accelerator thesis</h1>
+        <h1>Accelerator criteria</h1>
         <p>
           Edits here take effect on the very next pipeline run — no code change or redeploy
           needed. You can also edit this row directly in the Supabase Table Editor.
