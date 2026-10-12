@@ -130,8 +130,8 @@ button, input, textarea, select {
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(67, 56, 202, 0.08);
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 20px 48px rgba(99, 102, 241, 0.1);
 }
 
 .stack {
@@ -153,10 +153,10 @@ button, input, textarea, select {
   gap: 4px;
   font-family: var(--font-mono), monospace;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  font-size: 0.65rem;
   font-weight: 500;
-  padding: 3px 10px;
+  padding: 3px 10px 3px 13px;
   border-radius: 999px;
   background: var(--border);
   color: var(--foreground);
@@ -187,11 +187,11 @@ button, input, textarea, select {
   background: var(--surface);
   color: var(--foreground);
   border-radius: 999px;
-  padding: 9px 18px;
+  padding: 9px 16px 9px 22px;
   font-family: var(--font-mono), monospace;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  font-size: 0.7rem;
   font-weight: 500;
   cursor: pointer;
   transition: opacity 400ms var(--premium-ease), transform 400ms var(--premium-ease),
@@ -229,7 +229,7 @@ button, input, textarea, select {
   }
   50% {
     transform: scale(1.02);
-    box-shadow: 0 10px 40px -10px rgba(67, 56, 202, 0.4);
+    box-shadow: 0 0 20px rgba(67, 56, 202, 0.4);
   }
 }
 
@@ -271,8 +271,8 @@ button, input, textarea, select {
   gap: 4px;
   font-family: var(--font-mono), monospace;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  font-size: 0.68rem;
   color: var(--muted);
   font-weight: 500;
 }
@@ -303,6 +303,7 @@ button, input, textarea, select {
   font-size: 1.15rem;
   margin-right: auto;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .navStatus {
@@ -311,15 +312,16 @@ button, input, textarea, select {
   gap: 8px;
   font-family: var(--font-mono), monospace;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  font-size: 0.6rem;
   color: var(--muted);
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 6px 12px;
+  padding: 6px 12px 6px 14px;
+  white-space: nowrap;
 }
 
-@media (min-width: 720px) {
+@media (min-width: 960px) {
   .navStatus {
     display: inline-flex;
   }
@@ -360,17 +362,17 @@ button, input, textarea, select {
 .navLinks {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
 }
 
 .navLink {
   position: relative;
   font-family: var(--font-mono), monospace;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  font-size: 0.64rem;
   color: var(--muted);
-  padding: 4px 0;
+  padding: 4px 0 4px 6px;
   white-space: nowrap;
 }
 
@@ -451,10 +453,10 @@ button, input, textarea, select {
   text-align: left;
   font-family: var(--font-mono), monospace;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.25em;
   color: var(--muted);
   font-weight: 500;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   padding: 10px;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
@@ -525,8 +527,8 @@ button, input, textarea, select {
   border-radius: 999px;
   font-family: var(--font-mono), monospace;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  font-size: 0.72rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   z-index: 50;
 }
@@ -534,8 +536,8 @@ button, input, textarea, select {
 /* Scroll-reveal: fades/slides content in once it enters the viewport. */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 900ms var(--premium-ease), transform 900ms var(--premium-ease);
+  transform: translateY(40px);
+  transition: opacity 1000ms var(--premium-ease), transform 1000ms var(--premium-ease);
 }
 
 .revealActive {
@@ -578,7 +580,7 @@ button, input, textarea, select {
     radial-gradient(at 85% 85%, rgba(224, 231, 255, 0.6) 0px, transparent 55%),
     radial-gradient(at 15% 85%, rgba(252, 251, 249, 1) 0px, transparent 55%);
   background-color: var(--background);
-  animation: meshDrift 20s infinite linear alternate;
+  animation: meshDrift 30s infinite linear alternate;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -629,8 +631,8 @@ button, input, textarea, select {
 
 .heroHeadline {
   font-family: var(--font-display), serif;
-  font-size: clamp(2.6rem, 9vw, 5.5rem);
-  line-height: 0.95;
+  font-size: clamp(3rem, 12vw, 8rem);
+  line-height: 0.85;
   font-weight: 700;
   color: var(--foreground);
 }
