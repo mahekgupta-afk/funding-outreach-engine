@@ -16,14 +16,18 @@ export default function HeroPage() {
             Funding
             <span className="heroHeadlineLine2">Outreach Engine</span>
           </h1>
+          <Link
+            href="/news"
+            className="button buttonPrimary buttonGlow"
+            style={{ marginTop: 40, padding: "16px 32px", fontSize: "0.8rem" }}
+          >
+            Initialize →
+          </Link>
         </div>
 
         <div className="waveContainer">
           <div className="waveCurve" />
         </div>
-        <Link href="/news" className="button buttonPrimary buttonGlow waveButton">
-          Initialize →
-        </Link>
       </section>
     </>
   );

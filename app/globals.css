@@ -664,12 +664,3 @@ button, input, textarea, select {
   border-top: 1px solid var(--border);
 }
 
-.waveButton {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translate(-50%, 50%);
-  z-index: 2;
-  padding: 16px 32px;
-  font-size: 0.8rem;
-}
