@@ -77,6 +77,19 @@ export default function DraftCard({ draft }: { draft: DraftRow }) {
             <span className="badge badgeSuccess">fit {startup.fit_score}</span>
           )}
           {sample && <span className="badge sampleBadge">sample data</span>}
+          {draft.status !== "pending_review" && (
+            <span
+              className={`badge ${
+                draft.status === "sent"
+                  ? "badgeSuccess"
+                  : draft.status === "discarded"
+                    ? "badgeDanger"
+                    : ""
+              }`}
+            >
+              {draft.status}
+            </span>
+          )}
         </div>
         {startup?.source_url && !sample && (
           <a className="helperText" href={startup.source_url} target="_blank" rel="noreferrer">

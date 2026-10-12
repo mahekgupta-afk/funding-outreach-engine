@@ -83,6 +83,101 @@ export async function getPendingDrafts(): Promise<DraftRow[]> {
   return data as unknown as DraftRow[];
 }
 
+/** Every draft regardless of status — the Email page filters client-side by status tab. */
+export async function getAllDrafts(): Promise<DraftRow[]> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("drafts")
+    .select("*, startups(*)")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return data as unknown as DraftRow[];
+}
+
+export interface NewsItem {
+  id: string;
+  name: string;
+  stage: string | null;
+  amount_usd: number | null;
+  currency_raw: string | null;
+  investors: string[];
+  founders: string[];
+  sector: string | null;
+  geography: string | null;
+  announced_at: string | null;
+  source_url: string | null;
+  fit_score: number | null;
+  fit_reason: string | null;
+  news_status: "queued" | "contacted" | "below_threshold" | "skipped";
+  sort_at: string;
+}
+
+/**
+ * Every pre-seed/seed announcement found, regardless of thesis fit — a market-wide
+ * feed, not just the ones that became drafts. Combines `startups` (fit >= threshold,
+ * or manually promoted) with `rejected_log` rows for reject_reason = 'below_threshold'
+ * (still a real pre-seed/seed round, just not pursued).
+ */
+export async function getNewsItems(limit = 200): Promise<NewsItem[]> {
+  const supabase = getSupabaseAdmin();
+
+  const [{ data: startups, error: startupsError }, { data: belowThreshold, error: rejectedError }] =
+    await Promise.all([
+      supabase.from("startups").select("*").order("created_at", { ascending: false }).limit(limit),
+      supabase
+        .from("rejected_log")
+        .select("*")
+        .eq("reject_reason", "below_threshold")
+        .order("created_at", { ascending: false })
+        .limit(limit),
+    ]);
+
+  if (startupsError) throw new Error(startupsError.message);
+  if (rejectedError) throw new Error(rejectedError.message);
+
+  const fromStartups: NewsItem[] = (startups ?? []).map((s) => ({
+    id: s.id,
+    name: s.name,
+    stage: s.stage,
+    amount_usd: s.amount_usd,
+    currency_raw: s.currency_raw,
+    investors: s.investors ?? [],
+    founders: s.founders ?? [],
+    sector: s.sector,
+    geography: s.geography,
+    announced_at: s.announced_at,
+    source_url: s.source_url,
+    fit_score: s.fit_score,
+    fit_reason: s.fit_reason,
+    news_status: s.status === "contacted" ? "contacted" : s.status === "queued" ? "queued" : "skipped",
+    sort_at: s.announced_at ?? s.created_at,
+  }));
+
+  const fromRejected: NewsItem[] = (belowThreshold ?? [])
+    .filter((r) => !r.promoted_startup_id) // promoted ones already appear via `startups`
+    .map((r) => ({
+      id: r.id,
+      name: r.name ?? "(unknown)",
+      stage: r.stage,
+      amount_usd: r.amount_usd,
+      currency_raw: r.currency_raw,
+      investors: r.investors ?? [],
+      founders: r.founders ?? [],
+      sector: r.sector,
+      geography: r.geography,
+      announced_at: r.announced_at,
+      source_url: r.source_url,
+      fit_score: r.fit_score,
+      fit_reason: r.detail,
+      news_status: "below_threshold" as const,
+      sort_at: r.announced_at ?? r.created_at,
+    }));
+
+  return [...fromStartups, ...fromRejected].sort(
+    (a, b) => new Date(b.sort_at).getTime() - new Date(a.sort_at).getTime()
+  );
+}
+
 export async function getRejected(limit = 200): Promise<RejectedRow[]> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
