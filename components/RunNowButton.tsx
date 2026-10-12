@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { runPipelineAction } from "@/app/actions";
+import { runPipelineAction } from "@/app/(dashboard)/actions";
 import type { RunSummary } from "@/lib/pipeline";
 
 export default function RunNowButton() {

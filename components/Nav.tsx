@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  { href: "/", label: "News" },
+  { href: "/news", label: "News" },
   { href: "/email", label: "Email" },
   { href: "/thesis", label: "Thesis" },
   { href: "/rejected", label: "System Rejected" },
@@ -19,7 +19,9 @@ export default function Nav() {
   return (
     <nav className="nav">
       <div className="navInner">
-        <span className="navBrand">Funding Outreach Engine</span>
+        <Link href="/" className="navBrand">
+          Funding Outreach Engine
+        </Link>
         <div className={`navLinks ${open ? "navLinksOpen" : ""}`}>
           {LINKS.map((link) => (
             <Link

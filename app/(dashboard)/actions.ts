@@ -10,7 +10,7 @@ import { runPipeline, type RunSummary } from "@/lib/pipeline";
  */
 export async function runPipelineAction(): Promise<RunSummary> {
   const summary = await runPipeline();
-  revalidatePath("/");
+  revalidatePath("/news");
   revalidatePath("/email");
   revalidatePath("/runs");
   revalidatePath("/rejected");

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { NewsItem } from "@/lib/dashboard-data";
 import { isSampleSource } from "@/lib/constants";
+import Reveal from "@/components/Reveal";
 
 const STATUS_FILTERS = [
   { key: "all", label: "All" },
@@ -109,38 +110,45 @@ export default function NewsFeed({ items }: { items: NewsItem[] }) {
         <div className="card emptyState">No announcements match this filter.</div>
       ) : (
         <div className="stack">
-          {visible.map((item) => {
+          {visible.map((item, i) => {
             const sample = isSampleSource(item.source_url);
             return (
-              <div key={item.id} className="card stack">
-                <div className="row" style={{ justifyContent: "space-between" }}>
-                  <div className="row">
-                    <strong className="cardTitle">{item.name}</strong>
-                    {item.stage && <span className="badge">{item.stage}</span>}
-                    {item.fit_score != null && (
-                      <span className="badge badgeSuccess">fit {item.fit_score}</span>
+              <Reveal key={item.id} delayMs={Math.min(i, 5) * 80}>
+                <div className="card stack">
+                  <div className="row" style={{ justifyContent: "space-between" }}>
+                    <div className="row">
+                      <strong className="cardTitle">{item.name}</strong>
+                      {item.stage && <span className="badge">{item.stage}</span>}
+                      {item.fit_score != null && (
+                        <span className="badge badgeSuccess">fit {item.fit_score}</span>
+                      )}
+                      <span className={`badge ${STATUS_CLASS[item.news_status] ?? ""}`}>
+                        {STATUS_LABELS[item.news_status] ?? item.news_status}
+                      </span>
+                      {sample && <span className="badge sampleBadge">sample data</span>}
+                    </div>
+                    {item.source_url && !sample && (
+                      <a
+                        className="helperText"
+                        href={item.source_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        source ↗
+                      </a>
                     )}
-                    <span className={`badge ${STATUS_CLASS[item.news_status] ?? ""}`}>
-                      {STATUS_LABELS[item.news_status] ?? item.news_status}
-                    </span>
-                    {sample && <span className="badge sampleBadge">sample data</span>}
                   </div>
-                  {item.source_url && !sample && (
-                    <a className="helperText" href={item.source_url} target="_blank" rel="noreferrer">
-                      source ↗
-                    </a>
-                  )}
-                </div>
 
-                <div className="helperText">
-                  {formatAmount(item.amount_usd, item.currency_raw)}
-                  {item.investors.length ? ` · ${item.investors.join(", ")}` : ""}
-                  {item.geography ? ` · ${item.geography}` : ""}
-                  {item.sector ? ` · ${item.sector}` : ""}
-                </div>
+                  <div className="helperText">
+                    {formatAmount(item.amount_usd, item.currency_raw)}
+                    {item.investors.length ? ` · ${item.investors.join(", ")}` : ""}
+                    {item.geography ? ` · ${item.geography}` : ""}
+                    {item.sector ? ` · ${item.sector}` : ""}
+                  </div>
 
-                {item.fit_reason && <p className="helperText">{item.fit_reason}</p>}
-              </div>
+                  {item.fit_reason && <p className="helperText">{item.fit_reason}</p>}
+                </div>
+              </Reveal>
             );
           })}
         </div>
