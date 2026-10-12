@@ -7,7 +7,7 @@ const LINKS = [
   { href: "/", label: "News" },
   { href: "/email", label: "Email" },
   { href: "/thesis", label: "Thesis" },
-  { href: "/rejected", label: "Rejected" },
+  { href: "/rejected", label: "System Rejected" },
   { href: "/runs", label: "Runs" },
 ];
 

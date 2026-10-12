@@ -15,11 +15,13 @@ export default async function RejectedPage() {
   return (
     <div className="container stack">
       <div className="pageHeader">
-        <h1>Rejected log</h1>
+        <h1>System rejected</h1>
         <p>
-          Audit trail only — these never appear in the drafts queue by default. Kept so a wrong
-          rejection is visible and checkable, not silently invisible. Below-threshold rejections
-          can be promoted into a real draft if you disagree with the score.
+          Automatically filtered out by the pipeline before any draft was created — wrong stage,
+          not a funding announcement, or below your fit threshold. Audit trail only, so a wrong
+          rejection is visible and checkable, not silently invisible. Below-threshold rows can be
+          promoted into a real draft if you disagree with the score. (Drafts you personally
+          discarded after review live in Email → Discarded instead.)
         </p>
       </div>
 

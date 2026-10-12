@@ -37,7 +37,7 @@ export default async function NewsPage() {
         <p>
           Every pre-seed/seed funding announcement found across all sources — whether or not it
           fits the current thesis. For the ones being pursued, see the Email tab; for a wrong
-          rejection you want to override, see Rejected.
+          rejection you want to override, see System Rejected.
         </p>
       </div>
 
