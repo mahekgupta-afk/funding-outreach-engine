@@ -30,6 +30,13 @@ export default function CursorEffect() {
 
     document.body.classList.add("cursorFxActive");
 
+    // The orb has nowhere real to render until the first mousemove fires, so
+    // it starts hidden rather than sitting at a stale (0,0) default — then
+    // snaps straight to the real cursor position (no easing lag, no stray
+    // particle burst from the origin) the instant that first event arrives.
+    let hasPosition = false;
+    head!.style.opacity = "0";
+
     let lastX = 0;
     let lastY = 0;
     let targetX = 0;
@@ -41,6 +48,17 @@ export default function CursorEffect() {
     function onMouseMove(e: MouseEvent) {
       targetX = e.clientX;
       targetY = e.clientY;
+
+      if (!hasPosition) {
+        hasPosition = true;
+        currentX = targetX;
+        currentY = targetY;
+        lastX = targetX;
+        lastY = targetY;
+        head!.style.opacity = "1";
+        head!.style.transform = `translate(${currentX - 10}px, ${currentY - 10}px)`;
+        return;
+      }
 
       const dx = e.clientX - lastX;
       const dy = e.clientY - lastY;

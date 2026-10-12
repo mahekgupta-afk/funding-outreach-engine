@@ -740,7 +740,8 @@ body.cursorFxActive * {
   border-radius: 50%;
   filter: blur(8px);
   mix-blend-mode: screen;
-  transition: background 200ms ease-out, filter 200ms ease-out, box-shadow 200ms ease-out;
+  transition: background 200ms ease-out, filter 200ms ease-out, box-shadow 200ms ease-out,
+    opacity 250ms ease-out;
   box-shadow: 0 0 30px rgba(67, 56, 202, 0.6), 0 0 60px rgba(129, 140, 248, 0.3);
   will-change: transform;
 }
