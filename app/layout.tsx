@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter, JetBrains_Mono } from "next/font/google";
+import CursorEffect from "@/components/CursorEffect";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -47,7 +48,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <CursorEffect />
+        {children}
+      </body>
     </html>
   );
 }
