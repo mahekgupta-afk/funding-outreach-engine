@@ -173,9 +173,14 @@ export async function getNewsItems(limit = 200): Promise<NewsItem[]> {
       sort_at: r.announced_at ?? r.created_at,
     }));
 
-  return [...fromStartups, ...fromRejected].sort(
-    (a, b) => new Date(b.sort_at).getTime() - new Date(a.sort_at).getTime()
-  );
+  // Default order: highest fit score first (nulls/unscored last), so the
+  // best-fitting announcements are what Rohit sees at the top of the feed.
+  return [...fromStartups, ...fromRejected].sort((a, b) => {
+    if (a.fit_score == null && b.fit_score == null) return 0;
+    if (a.fit_score == null) return 1;
+    if (b.fit_score == null) return -1;
+    return b.fit_score - a.fit_score;
+  });
 }
 
 export async function getRejected(limit = 200): Promise<RejectedRow[]> {

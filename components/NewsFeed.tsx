@@ -35,17 +35,30 @@ function formatAmount(amountUsd: number | null, currencyRaw: string | null): str
   return currencyRaw && currencyRaw !== formatted ? `${formatted} (${currencyRaw})` : formatted;
 }
 
+type SortKey = "score" | "newest";
+
 export default function NewsFeed({ items }: { items: NewsItem[] }) {
   const [statusFilter, setStatusFilter] = useState<(typeof STATUS_FILTERS)[number]["key"]>("all");
   const [stageFilter, setStageFilter] = useState<"all" | "pre-seed" | "seed">("all");
+  const [sort, setSort] = useState<SortKey>("score");
 
   const stages = Array.from(new Set(items.map((i) => i.stage).filter(Boolean))) as string[];
 
-  const visible = items.filter((item) => {
-    if (statusFilter !== "all" && item.news_status !== statusFilter) return false;
-    if (stageFilter !== "all" && item.stage !== stageFilter) return false;
-    return true;
-  });
+  const visible = items
+    .filter((item) => {
+      if (statusFilter !== "all" && item.news_status !== statusFilter) return false;
+      if (stageFilter !== "all" && item.stage !== stageFilter) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sort === "newest") {
+        return new Date(b.sort_at).getTime() - new Date(a.sort_at).getTime();
+      }
+      if (a.fit_score == null && b.fit_score == null) return 0;
+      if (a.fit_score == null) return 1;
+      if (b.fit_score == null) return -1;
+      return b.fit_score - a.fit_score;
+    });
 
   const counts = Object.fromEntries(
     STATUS_FILTERS.map((f) => [
@@ -81,6 +94,15 @@ export default function NewsFeed({ items }: { items: NewsItem[] }) {
             ))}
           </select>
         )}
+        <select
+          className="select"
+          style={{ width: "auto", marginLeft: "auto" }}
+          value={sort}
+          onChange={(e) => setSort(e.target.value as SortKey)}
+        >
+          <option value="score">Sort: highest fit score</option>
+          <option value="newest">Sort: newest first</option>
+        </select>
       </div>
 
       {visible.length === 0 ? (
