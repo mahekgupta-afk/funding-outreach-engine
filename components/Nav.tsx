@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const LINKS = [
   { href: "/news", label: "News" },
@@ -38,6 +39,7 @@ export default function Nav() {
           <span className="navStatusDot" />
           System Online
         </span>
+        <ThemeToggle />
         <button
           className="navToggle"
           onClick={() => setOpen((o) => !o)}
