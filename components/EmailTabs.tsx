@@ -44,8 +44,8 @@ export default function EmailTabs({ drafts }: { drafts: DraftRow[] }) {
         </div>
       ) : (
         <div className="stack">
-          {visible.map((draft) => (
-            <DraftCard key={draft.id} draft={draft} />
+          {visible.map((draft, i) => (
+            <DraftCard key={draft.id} draft={draft} defaultExpanded={i === 0} />
           ))}
         </div>
       )}

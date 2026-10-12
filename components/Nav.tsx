@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,20 +14,32 @@ const LINKS = [
 
 export default function Nav() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   return (
     <nav className="nav">
       <div className="navInner">
         <span className="navBrand">Funding Outreach Engine</span>
-        {LINKS.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`navLink ${pathname === link.href ? "navLinkActive" : ""}`}
-          >
-            {link.label}
-          </Link>
-        ))}
+        <button
+          className="navToggle"
+          onClick={() => setOpen((o) => !o)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={open}
+        >
+          {open ? "✕" : "☰"}
+        </button>
+        <div className={`navLinks ${open ? "navLinksOpen" : ""}`}>
+          {LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`navLink ${pathname === link.href ? "navLinkActive" : ""}`}
+              onClick={() => setOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
       </div>
     </nav>
   );

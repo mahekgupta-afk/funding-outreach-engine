@@ -1,4 +1,5 @@
 import { getRuns } from "@/lib/dashboard-data";
+import RunsTable from "@/components/RunsTable";
 
 export const dynamic = "force-dynamic";
 
@@ -78,66 +79,7 @@ export default async function RunsPage() {
             </div>
           </div>
 
-          <div className="tableWrap">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Started</th>
-                  <th>Duration</th>
-                  <th>Fetched</th>
-                  <th>New</th>
-                  <th>Funding</th>
-                  <th>Seed stage</th>
-                  <th>Drafts</th>
-                  <th>Rejected</th>
-                  <th>Errors</th>
-                </tr>
-              </thead>
-              <tbody>
-                {runs.map((r) => {
-                  const durationMs = r.finished_at
-                    ? new Date(r.finished_at).getTime() - new Date(r.started_at).getTime()
-                    : null;
-                  const errors = Array.isArray(r.errors) ? r.errors : [];
-                  const quiet = r.articles_new === 0;
-                  return (
-                    <tr key={r.id} style={quiet ? { opacity: 0.55 } : undefined}>
-                      <td style={{ whiteSpace: "nowrap" }}>
-                        {new Date(r.started_at).toLocaleString()}
-                      </td>
-                      <td>{durationMs != null ? `${Math.round(durationMs / 1000)}s` : "running…"}</td>
-                      <td>{r.articles_fetched}</td>
-                      <td>{r.articles_new}</td>
-                      <td>{r.funding_found}</td>
-                      <td>{r.seed_stage}</td>
-                      <td>
-                        {r.drafts_created > 0 ? (
-                          <span className="badge badgeSuccess">{r.drafts_created}</span>
-                        ) : (
-                          0
-                        )}
-                      </td>
-                      <td>{r.rejected}</td>
-                      <td>
-                        {errors.length > 0 ? (
-                          <details>
-                            <summary className="badge badgeWarning">{errors.length} error(s)</summary>
-                            <ul style={{ marginTop: 6, paddingLeft: 18, fontSize: "0.8rem" }}>
-                              {errors.map((e, i) => (
-                                <li key={i}>{String(e)}</li>
-                              ))}
-                            </ul>
-                          </details>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <RunsTable runs={runs} />
         </>
       )}
     </div>
