@@ -729,38 +729,36 @@ body.cursorFxActive * {
 
 .cursorBeamHead {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   background: radial-gradient(
     circle,
-    rgba(67, 56, 202, 0.9) 0%,
-    rgba(129, 140, 248, 0.4) 50%,
-    transparent 70%
+    rgba(67, 56, 202, 1) 0%,
+    rgba(67, 56, 202, 0.9) 45%,
+    rgba(129, 140, 248, 0.5) 75%,
+    transparent 100%
   );
   border-radius: 50%;
-  filter: blur(8px);
-  mix-blend-mode: screen;
-  transition: background 200ms ease-out, filter 200ms ease-out, box-shadow 200ms ease-out,
-    opacity 250ms ease-out;
-  box-shadow: 0 0 30px rgba(67, 56, 202, 0.6), 0 0 60px rgba(129, 140, 248, 0.3);
+  outline: 1.5px solid rgba(255, 255, 255, 0.6);
+  transition: background 200ms ease-out, box-shadow 200ms ease-out, width 200ms ease-out,
+    height 200ms ease-out, opacity 250ms ease-out;
+  box-shadow: 0 0 16px rgba(67, 56, 202, 0.8), 0 0 32px rgba(129, 140, 248, 0.5);
   will-change: transform;
 }
 
 .cursorBeamTrail {
   position: absolute;
   width: 400px;
-  height: 1px;
+  height: 2px;
   background: linear-gradient(
     90deg,
-    rgba(67, 56, 202, 0.7),
-    rgba(129, 140, 248, 0.3),
+    rgba(67, 56, 202, 0.9),
+    rgba(129, 140, 248, 0.5),
     transparent
   );
   transform-origin: left center;
-  filter: blur(2px);
   opacity: 0;
   transition: opacity 300ms ease-out;
-  mix-blend-mode: screen;
 }
 
 .cursorParticle {
@@ -768,7 +766,6 @@ body.cursorFxActive * {
   pointer-events: none;
   border-radius: 50%;
   z-index: 9998;
-  mix-blend-mode: screen;
   animation: cursorParticleFade 1.2s cubic-bezier(0.1, 0, 0.3, 1) forwards;
 }
 

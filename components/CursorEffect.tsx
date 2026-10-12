@@ -56,7 +56,7 @@ export default function CursorEffect() {
         lastX = targetX;
         lastY = targetY;
         head!.style.opacity = "1";
-        head!.style.transform = `translate(${currentX - 10}px, ${currentY - 10}px)`;
+        head!.style.transform = `translate(${currentX}px, ${currentY}px) translate(-50%, -50%)`;
         return;
       }
 
@@ -82,7 +82,7 @@ export default function CursorEffect() {
     function animate() {
       currentX += (targetX - currentX) * 0.2;
       currentY += (targetY - currentY) * 0.2;
-      head!.style.transform = `translate(${currentX - 10}px, ${currentY - 10}px)`;
+      head!.style.transform = `translate(${currentX}px, ${currentY}px) translate(-50%, -50%)`;
       rafId = requestAnimationFrame(animate);
     }
 
@@ -119,14 +119,16 @@ export default function CursorEffect() {
     function setHover(active: boolean) {
       if (active) {
         head!.style.background =
-          "radial-gradient(circle, rgba(129, 140, 248, 0.95) 0%, rgba(67, 56, 202, 0.5) 50%, transparent 70%)";
-        head!.style.filter = "blur(12px)";
-        head!.style.boxShadow = "0 0 40px rgba(129, 140, 248, 0.8), 0 0 80px rgba(67, 56, 202, 0.4)";
+          "radial-gradient(circle, rgba(129, 140, 248, 1) 0%, rgba(129, 140, 248, 0.9) 45%, rgba(67, 56, 202, 0.6) 75%, transparent 100%)";
+        head!.style.width = "22px";
+        head!.style.height = "22px";
+        head!.style.boxShadow = "0 0 24px rgba(129, 140, 248, 0.9), 0 0 48px rgba(67, 56, 202, 0.6)";
       } else {
         head!.style.background =
-          "radial-gradient(circle, rgba(67, 56, 202, 0.9) 0%, rgba(129, 140, 248, 0.4) 50%, transparent 70%)";
-        head!.style.filter = "blur(8px)";
-        head!.style.boxShadow = "0 0 30px rgba(67, 56, 202, 0.6), 0 0 60px rgba(129, 140, 248, 0.3)";
+          "radial-gradient(circle, rgba(67, 56, 202, 1) 0%, rgba(67, 56, 202, 0.9) 45%, rgba(129, 140, 248, 0.5) 75%, transparent 100%)";
+        head!.style.width = "14px";
+        head!.style.height = "14px";
+        head!.style.boxShadow = "0 0 16px rgba(67, 56, 202, 0.8), 0 0 32px rgba(129, 140, 248, 0.5)";
       }
     }
 
