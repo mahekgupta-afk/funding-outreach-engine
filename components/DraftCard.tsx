@@ -102,7 +102,7 @@ export default function DraftCard({
       >
         <div className="row" style={{ flexWrap: "wrap" }}>
           <span style={{ color: "var(--muted)", fontSize: "0.8rem" }}>{expanded ? "▾" : "▸"}</span>
-          <strong style={{ fontSize: "1.05rem" }}>{startup?.name}</strong>
+          <strong className="cardTitle">{startup?.name}</strong>
           {startup?.stage && <span className="badge">{startup.stage}</span>}
           {startup?.fit_score != null && (
             <span className="badge badgeSuccess">fit {startup.fit_score}</span>
@@ -128,8 +128,8 @@ export default function DraftCard({
         )}
       </button>
 
-      {expanded && (
-        <>
+      <div className={`accordionBody ${expanded ? "accordionBodyOpen" : ""}`}>
+        <div className="accordionBodyInner stack" style={{ paddingTop: expanded ? 16 : 0 }}>
           <div className="helperText">
             {formatAmount(startup?.amount_usd ?? null, startup?.currency_raw ?? null)}
             {startup?.investors?.length ? ` · ${startup.investors.join(", ")}` : ""}
@@ -215,8 +215,8 @@ export default function DraftCard({
               Discard
             </button>
           </div>
-        </>
-      )}
+        </div>
+      </div>
 
       {toast && <div className="toast">{toast}</div>}
     </div>

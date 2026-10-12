@@ -20,14 +20,6 @@ export default function Nav() {
     <nav className="nav">
       <div className="navInner">
         <span className="navBrand">Funding Outreach Engine</span>
-        <button
-          className="navToggle"
-          onClick={() => setOpen((o) => !o)}
-          aria-label="Toggle navigation menu"
-          aria-expanded={open}
-        >
-          {open ? "✕" : "☰"}
-        </button>
         <div className={`navLinks ${open ? "navLinksOpen" : ""}`}>
           {LINKS.map((link) => (
             <Link
@@ -40,6 +32,18 @@ export default function Nav() {
             </Link>
           ))}
         </div>
+        <span className="navStatus">
+          <span className="navStatusDot" />
+          System Online
+        </span>
+        <button
+          className="navToggle"
+          onClick={() => setOpen((o) => !o)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={open}
+        >
+          {open ? "✕" : "☰"}
+        </button>
       </div>
     </nav>
   );

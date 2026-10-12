@@ -25,7 +25,11 @@ export default function RunNowButton() {
   return (
     <div className="stack">
       <div className="row">
-        <button className="button buttonPrimary" onClick={handleClick} disabled={isPending}>
+        <button
+          className={`button buttonPrimary ${isPending ? "" : "buttonGlow"}`}
+          onClick={handleClick}
+          disabled={isPending}
+        >
           {isPending ? "Running…" : "Run now"}
         </button>
         <span className="helperText">

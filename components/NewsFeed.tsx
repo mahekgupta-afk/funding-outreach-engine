@@ -115,7 +115,7 @@ export default function NewsFeed({ items }: { items: NewsItem[] }) {
               <div key={item.id} className="card stack">
                 <div className="row" style={{ justifyContent: "space-between" }}>
                   <div className="row">
-                    <strong style={{ fontSize: "1.05rem" }}>{item.name}</strong>
+                    <strong className="cardTitle">{item.name}</strong>
                     {item.stage && <span className="badge">{item.stage}</span>}
                     {item.fit_score != null && (
                       <span className="badge badgeSuccess">fit {item.fit_score}</span>
